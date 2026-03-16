@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 
-export default function CameraCapture({ onCapture }) {
+export default function CameraCapture({ onCapture, onRetake }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [hasCaptured, setHasCaptured] = useState(false);
   const [error, setError] = useState("");
 
   const startCamera = async () => {
@@ -58,7 +59,15 @@ export default function CameraCapture({ onCapture }) {
       width: canvas.width,
       height: canvas.height
     });
+    setHasCaptured(true);
     stopCamera();
+  };
+
+  const handleRetake = async () => {
+    setError("");
+    setHasCaptured(false);
+    onRetake?.();
+    await startCamera();
   };
 
   return (
@@ -79,13 +88,25 @@ export default function CameraCapture({ onCapture }) {
         <button
           type="button"
           onClick={capture}
+          disabled={isStarting}
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
         >
           Capture Photo
         </button>
+        {hasCaptured ? (
+          <button
+            type="button"
+            onClick={handleRetake}
+            disabled={isStarting}
+            className="rounded-lg border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-700 disabled:opacity-60"
+          >
+            Retake
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={stopCamera}
+          disabled={isStarting}
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
         >
           Stop Camera

@@ -39,6 +39,33 @@ const parseSalary = (value, fallback) => {
   return fallback;
 };
 
+const parsePayload = (rawPayload) => {
+  if (!rawPayload) {
+    return {};
+  }
+
+  if (typeof rawPayload === "string") {
+    try {
+      return JSON.parse(rawPayload);
+    } catch {
+      return {};
+    }
+  }
+
+  if (typeof rawPayload?.TABLE_DATA === "string") {
+    try {
+      return {
+        ...rawPayload,
+        TABLE_DATA: JSON.parse(rawPayload.TABLE_DATA)
+      };
+    } catch {
+      return rawPayload;
+    }
+  }
+
+  return rawPayload;
+};
+
 const normalizeEmployees = (payload) => {
   const source = Array.isArray(payload)
     ? payload
@@ -113,7 +140,8 @@ export function EmployeeProvider({ children }) {
           throw new Error(`Employee API failed with status ${response.status}`);
         }
 
-        const payload = await response.json();
+        const rawPayload = await response.json();
+        const payload = parsePayload(rawPayload);
         const normalized = normalizeEmployees(payload);
         console.log("Employee API status:", response.status);
         console.log("Employee API rows normalized:", normalized.length);

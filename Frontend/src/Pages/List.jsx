@@ -35,7 +35,6 @@ export default function List() {
           <div>
             <p className="text-sm text-slate-500">Signed in as {user?.username}</p>
             <h1 className="text-3xl font-semibold text-slate-950">Employee Insights Dashboard</h1>
-            <p className="mt-1 text-sm text-slate-500">Custom virtualization keeps the grid responsive even when the dataset grows.</p>
           </div>
 
           <div className="flex gap-3">
@@ -74,8 +73,7 @@ export default function List() {
             placeholder="Search employees by name, city, department, or email"
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none ring-0 placeholder:text-slate-400 md:max-w-md"
           />
-          <p className="text-sm text-slate-500">Row rendering is capped to the visible viewport plus overscan buffer.</p>
-        </div>
+          </div>
 
         {error ? <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">{error}</p> : null}
 

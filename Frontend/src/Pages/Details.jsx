@@ -67,7 +67,7 @@ export default function Details() {
 	};
 
 	return (
-		<div className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#e2e8f0_100%)] px-4 py-8">
+		<div className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#e2e8f0_100%)] px-4 py-8">
 			<div className="mx-auto max-w-7xl rounded-[28px] bg-white/95 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur">
 				<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 					<div>
@@ -99,6 +99,11 @@ export default function Details() {
 							onCapture={({ photoDataUrl, width, height }) => {
 								setPhotoState({ photoDataUrl, width, height });
 								setSignature("");
+							}}
+							onRetake={() => {
+								setPhotoState(null);
+								setSignature("");
+								setMergeError("");
 							}}
 						/>
 					</div>

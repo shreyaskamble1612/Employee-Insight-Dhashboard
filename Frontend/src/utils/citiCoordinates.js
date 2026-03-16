@@ -6,5 +6,5 @@ export const cityCoords = {
   Hyderabad:[17.3850,78.4867],
   Chennai:[13.0827,80.2707],
   Kolkata:[22.5726,88.3639],
-  Ahmedabad:[23.0225,72.5714]
+  Ahmedabad:[23.0225,72.5714],
 };

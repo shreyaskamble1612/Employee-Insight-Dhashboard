@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const EMPLOYEE_ENDPOINT = import.meta.env.VITE_EMPLOYEE_ENDPOINT;
+const EMPLOYEE_API_USERNAME = import.meta.env.VITE_EMPLOYEE_API_USERNAME;
+const EMPLOYEE_API_PASSWORD = import.meta.env.VITE_EMPLOYEE_API_PASSWORD;
 
 const fallbackEmployees = [
   { id: 1, name: "Aarav Sharma", city: "Mumbai", salary: 82000, department: "Engineering", email: "aarav.sharma@example.com" },
@@ -123,6 +125,13 @@ export function EmployeeProvider({ children }) {
       setLoading(true);
       setError("");
 
+      if (!EMPLOYEE_ENDPOINT || !EMPLOYEE_API_USERNAME || !EMPLOYEE_API_PASSWORD) {
+        setEmployees(normalizeEmployees([]));
+        setError("Missing .env config: set VITE_EMPLOYEE_ENDPOINT, VITE_EMPLOYEE_API_USERNAME, and VITE_EMPLOYEE_API_PASSWORD.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(EMPLOYEE_ENDPOINT, {
           method: "POST",
@@ -130,8 +139,8 @@ export function EmployeeProvider({ children }) {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            username: "test",
-            password: "123456"
+            username: EMPLOYEE_API_USERNAME,
+            password: EMPLOYEE_API_PASSWORD
           }),
           signal: controller.signal
         });

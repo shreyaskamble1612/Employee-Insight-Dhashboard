@@ -42,15 +42,83 @@ City-to-coordinate mapping is handled dynamically with OpenStreetMap Nominatim:
 To avoid duplicate geocoding calls, the component keeps an in-memory cache (`useRef(new Map())`) keyed by city name.
 Leaflet CSS is imported in the component to ensure map tiles and markers render correctly.
 
-## Intentional Vulnerability
+### Intentional Vulnerability ###
 
 This submission intentionally contains exactly one bug to satisfy the assignment requirement.
 
-- Bug type: memory leak
-- Location: `src/Components/CameraCapture.jsx`
-- Description: if the details page unmounts while the camera stream is still active and the user has not clicked `Stop Camera` or `Capture Photo`, the stream is not stopped automatically. This leaves the media track alive longer than necessary.
+## What is the Bug?
 
-No other intentional performance or logic bugs were added.
+This project intentionally includes a resource/memory leak related to the browser camera stream.
+If the user navigates away from the Details page while the camera is still active, the camera media stream is not automatically stopped.
+
+This means the video stream continues running longer than necessary, which can cause unnecessary resource usage.
+
+## Where is Bug?
+The issue is located in =>  src/components/CameraCapture.jsx
+    Specifically, the component starts a camera stream using:
+    navigator.mediaDevices.getUserMedia()
+
+However, the stream is only stopped when the user clicks:
+
+    `Stop Camera`
+
+    Capture Photo
+
+`If the user navigates away from the page before doing this, the component unmounts without cleaning up the active media tracks.`
+
+## Why Was This Bug Chosen?
+This bug was intentionally included because the assignment evaluates understanding of browser hardware APIs and React lifecycle management.
+
+Working with navigator.mediaDevices.getUserMedia() requires proper cleanup of media tracks when components unmount.
+Failing to release these resources can lead to memory leaks or unnecessary hardware usage.
+
+By intentionally leaving out the cleanup logic, this demonstrates awareness of a common real-world issue developers encounter when integrating browser hardware APIs.
+
+
+
+
+## Virtualization Math (Technical)
+
+Custom virtualization is implemented in `src/hooks/UseVirtualization.js` and consumed by `src/Components/VirtualizedTable.jsx`.
+
+Given:
+
+- `N` = total rows (`data.length`)
+- `H_row` = fixed row height (`rowHeight`)
+- `H_view` = scroll container height (`containerHeight` / `height`)
+- `S` = current scroll offset (`scrollTop`)
+- `B` = overscan rows (`overscan`, default `6`)
+
+The calculations are:
+
+1. Visible rows in viewport
+	`visibleRows = ceil(H_view / H_row)`
+
+2. Start index (with top overscan)
+	`startIndex = max(0, floor(S / H_row) - B)`
+
+3. End index (with bottom overscan)
+	`endIndex = min(N, startIndex + visibleRows + 2B)`
+
+4. Slice to render
+	`visibleData = data.slice(startIndex, endIndex)`
+
+5. Total virtual content height
+	`totalHeight = N * H_row`
+
+6. Y-offset for rendered window
+	`offsetY = startIndex * H_row`
+
+DOM strategy:
+
+- Outer scroll container has fixed height (`H_view`) and captures `scrollTop`.
+- Inner spacer div has full virtual height (`totalHeight`) to preserve scrollbar behavior.
+- Actual rendered rows are translated by `translateY(offsetY)` so they appear at the correct scroll position.
+
+Complexity benefits:
+
+- Without virtualization: render cost is `O(N)` rows.
+- With virtualization: render cost is `O(visibleRows + 2B)`, effectively constant relative to dataset size.
 
 ## Notes
 
